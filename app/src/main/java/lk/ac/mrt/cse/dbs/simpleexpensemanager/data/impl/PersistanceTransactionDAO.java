@@ -11,22 +11,33 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.Database.DataBaseConnect;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
-import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.dataBase.DataBaseConnect;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
-
 
 
 public class PersistanceTransactionDAO implements TransactionDAO {
 
     private Context context;
     private DataBaseConnect manager;
+
     public PersistanceTransactionDAO(Context context) {
         this.context = context;
         manager = DataBaseConnect.getInstance(context);
 
+    }
+
+    public static String dateFormatString(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        String dateString = dateFormat.format(date);
+        return dateString;
+    }
+
+    public static Date dateFormatDate(String date) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        Date strDate = dateFormat.parse(date);
+        return strDate;
     }
 
     @Override
@@ -34,11 +45,11 @@ public class PersistanceTransactionDAO implements TransactionDAO {
         SQLiteDatabase db = manager.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(manager.accountNo,accountNo);
+        values.put(manager.accountNo, accountNo);
         values.put(manager.date, dateFormatString(date));
         values.put(manager.amount, amount);
         values.put(manager.expenceType, expenseType.toString());
-        db.insert(manager.transactionTableName , null, values);
+        db.insert(manager.transactionTableName, null, values);
     }
 
     @Override
@@ -49,73 +60,51 @@ public class PersistanceTransactionDAO implements TransactionDAO {
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) {
         SQLiteDatabase db = manager.getReadableDatabase();
-        String querySize = String.format("SELECT count(accountNo) FROM %s ",manager.transactionTableName);
+        String querySize = String.format("SELECT count(accountNo) FROM %s ", manager.transactionTableName);
         Cursor cursorsize = db.rawQuery(querySize, null);
         int size = cursorsize.getCount();
         String query;
-        if(size<=limit){
-            query = "SELECT "+ manager.accountNo + ", " +
+        if (size <= limit) {
+            query = "SELECT " + manager.accountNo + ", " +
                     manager.date + ", " +
-                    manager.expenceType+", " +
+                    manager.expenceType + ", " +
                     manager.amount +
                     " FROM " + manager.transactionTableName + " ORDER BY " + manager.transactionId + " DESC";
-        }
-        else {
-            query = "SELECT "+ manager.accountNo + ", " +
+        } else {
+            query = "SELECT " + manager.accountNo + ", " +
                     manager.date + ", " +
-                    manager.expenceType+", " +
+                    manager.expenceType + ", " +
                     manager.amount +
                     " FROM " + manager.transactionTableName + " ORDER BY " + manager.transactionId + " DESC LIMIT" + limit;
         }
 
-        Cursor cursor = db.rawQuery(query,null);
+        Cursor cursor = db.rawQuery(query, null);
 
         ArrayList<Transaction> transactionLogData = new ArrayList<>();
 
-        while (cursor.moveToNext())
-        {
-            try{
+        while (cursor.moveToNext()) {
+            try {
                 ExpenseType expenseType = null;
-                if(cursor.getString(cursor.getColumnIndex(manager.expenceType)).equals(ExpenseType.INCOME.toString())){
+                if (cursor.getString(cursor.getColumnIndex(manager.expenceType)).equals(ExpenseType.INCOME.toString())) {
                     expenseType = ExpenseType.INCOME;
-                }
-                else {
+                } else {
                     expenseType = ExpenseType.EXPENSE;
                 }
 
                 String dateString = cursor.getString(cursor.getColumnIndex(manager.date));
                 Date date = dateFormatDate(dateString);
-                Transaction transaction = new Transaction(date,cursor.getString(cursor.getColumnIndex(manager.accountNo)),
+                Transaction transaction = new Transaction(date, cursor.getString(cursor.getColumnIndex(manager.accountNo)),
                         expenseType,
                         cursor.getDouble(cursor.getColumnIndex(manager.amount))
                 );
                 transactionLogData.add(transaction);
-            }
-            catch (ParseException e){
+            } catch (ParseException e) {
                 e.printStackTrace();
             }
 
         }
         return transactionLogData;
     }
-
-
-    public static String dateFormatString(Date date)
-    {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        String dateString = dateFormat.format(date);
-        return dateString;
-    }
-
-    public static Date dateFormatDate(String date) throws ParseException
-    {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        Date strDate = dateFormat.parse(date);
-        return strDate;
-    }
-
-
-
 
 
 }

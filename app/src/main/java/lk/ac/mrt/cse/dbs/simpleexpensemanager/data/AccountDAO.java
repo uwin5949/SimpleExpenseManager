@@ -69,7 +69,7 @@ public interface AccountDAO {
     /***
      * Update the balance of the given account. The type of the expense is specified in order to determine which
      * action to be performed.
-     * <p/>
+     * <p>
      * The implementation has the flexibility to figure out how the updating operation is committed based on the type
      * of the transaction.
      *

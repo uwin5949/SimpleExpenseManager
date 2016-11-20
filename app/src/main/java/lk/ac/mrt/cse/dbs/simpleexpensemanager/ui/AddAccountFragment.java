@@ -28,6 +28,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.R;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.ExpenseManager;
 
 import static lk.ac.mrt.cse.dbs.simpleexpensemanager.Constants.EXPENSE_MANAGER;
+
 /**
  *
  */
@@ -39,15 +40,15 @@ public class AddAccountFragment extends Fragment implements View.OnClickListener
     private EditText initialBalance;
     private Button addAccount;
 
+    public AddAccountFragment() {
+    }
+
     public static AddAccountFragment newInstance(ExpenseManager expenseManager) {
         AddAccountFragment addAccountFragment = new AddAccountFragment();
         Bundle args = new Bundle();
         args.putSerializable(EXPENSE_MANAGER, expenseManager);
         addAccountFragment.setArguments(args);
         return addAccountFragment;
-    }
-
-    public AddAccountFragment() {
     }
 
     @Override
