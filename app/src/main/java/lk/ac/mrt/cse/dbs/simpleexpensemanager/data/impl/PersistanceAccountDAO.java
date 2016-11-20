@@ -30,13 +30,13 @@ public class PersistanceAccountDAO implements AccountDAO {
 
         SQLiteDatabase db = manager.getReadableDatabase();
 
-        String query = String.format("SELECT %s FROM %s ORDER BY %s ASC", manager.bankAccountNo, manager.accountTableName, manager.bankAccountNo);
+        String query = String.format("SELECT %s FROM %s ORDER BY %s ASC", DataBaseConnect.bankAccountNo, DataBaseConnect.accountTableName, DataBaseConnect.bankAccountNo);
         Cursor cursor = db.rawQuery(query, null);
 
         ArrayList<String> result = new ArrayList<String>();
 
         while (cursor.moveToNext()) {
-            result.add(cursor.getString(cursor.getColumnIndex(manager.bankAccountNo)));
+            result.add(cursor.getString(cursor.getColumnIndex(DataBaseConnect.bankAccountNo)));
         }
         cursor.close();
         return result;
@@ -46,16 +46,16 @@ public class PersistanceAccountDAO implements AccountDAO {
     public List<Account> getAccountsList() {
         SQLiteDatabase db = manager.getReadableDatabase();
 
-        String query = String.format("SELECT * FROM %s ORDER BY %s ASC", manager.accountTableName, manager.bankAccountNo);
+        String query = String.format("SELECT * FROM %s ORDER BY %s ASC", DataBaseConnect.accountTableName, DataBaseConnect.bankAccountNo);
         Cursor cursor = db.rawQuery(query, null);
 
         ArrayList<Account> result = new ArrayList<>();
 
         while (cursor.moveToNext()) {
-            Account account = new Account(cursor.getString(cursor.getColumnIndex(manager.bankAccountNo)),
-                    cursor.getString(cursor.getColumnIndex(manager.bankName)),
-                    cursor.getString(cursor.getColumnIndex(manager.accountHolder)),
-                    cursor.getDouble(cursor.getColumnIndex(manager.balance)));
+            Account account = new Account(cursor.getString(cursor.getColumnIndex(DataBaseConnect.bankAccountNo)),
+                    cursor.getString(cursor.getColumnIndex(DataBaseConnect.bankName)),
+                    cursor.getString(cursor.getColumnIndex(DataBaseConnect.accountHolder)),
+                    cursor.getDouble(cursor.getColumnIndex(DataBaseConnect.balance)));
 
             result.add(account);
         }
@@ -67,17 +67,17 @@ public class PersistanceAccountDAO implements AccountDAO {
     public Account getAccount(String accountNo) throws InvalidAccountException {
         SQLiteDatabase db = manager.getReadableDatabase();
 
-        String query = "SELECT * FROM " + manager.accountTableName + " WHERE " + manager.bankAccountNo + " =  '" + accountNo + "'";
+        String query = "SELECT * FROM " + DataBaseConnect.accountTableName + " WHERE " + DataBaseConnect.bankAccountNo + " =  '" + accountNo + "'";
 
         Cursor cursor = db.rawQuery(query, null);
 
         Account account = null;
 
         if (cursor.moveToFirst()) {
-            account = new Account(cursor.getString(cursor.getColumnIndex(manager.bankAccountNo)),
-                    cursor.getString(cursor.getColumnIndex(manager.bankName)),
-                    cursor.getString(cursor.getColumnIndex(manager.accountHolder)),
-                    cursor.getDouble(cursor.getColumnIndex(manager.balance)));
+            account = new Account(cursor.getString(cursor.getColumnIndex(DataBaseConnect.bankAccountNo)),
+                    cursor.getString(cursor.getColumnIndex(DataBaseConnect.bankName)),
+                    cursor.getString(cursor.getColumnIndex(DataBaseConnect.accountHolder)),
+                    cursor.getDouble(cursor.getColumnIndex(DataBaseConnect.balance)));
 
 
         } else {
@@ -91,12 +91,12 @@ public class PersistanceAccountDAO implements AccountDAO {
     public void addAccount(Account account) {
         SQLiteDatabase db = manager.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(manager.accountNo, account.getAccountNo());
-        values.put(manager.bankName, account.getBankName());
-        values.put(manager.accountHolder, account.getAccountHolderName());
-        values.put(manager.balance, account.getBalance());
+        values.put(DataBaseConnect.accountNo, account.getAccountNo());
+        values.put(DataBaseConnect.bankName, account.getBankName());
+        values.put(DataBaseConnect.accountHolder, account.getAccountHolderName());
+        values.put(DataBaseConnect.balance, account.getBalance());
 
-        db.insert(manager.accountTableName, null, values);
+        db.insert(DataBaseConnect.accountTableName, null, values);
 
     }
 
@@ -105,7 +105,7 @@ public class PersistanceAccountDAO implements AccountDAO {
 
         SQLiteDatabase db = manager.getWritableDatabase();
 
-        String query = "SELECT * FROM " + manager.accountTableName + " WHERE " + manager.bankAccountNo + " =  '" + accountNo + "'";
+        String query = "SELECT * FROM " + DataBaseConnect.accountTableName + " WHERE " + DataBaseConnect.bankAccountNo + " =  '" + accountNo + "'";
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -113,11 +113,11 @@ public class PersistanceAccountDAO implements AccountDAO {
 
 
         if (cursor.moveToFirst()) {
-            account = new Account(cursor.getString(cursor.getColumnIndex(manager.bankAccountNo)),
-                    cursor.getString(cursor.getColumnIndex(manager.bankName)),
-                    cursor.getString(cursor.getColumnIndex(manager.accountHolder)),
-                    cursor.getFloat(cursor.getColumnIndex(manager.balance)));
-            db.delete(manager.accountTableName, manager.bankAccountNo + " = ?", new String[]{accountNo});
+            account = new Account(cursor.getString(cursor.getColumnIndex(DataBaseConnect.bankAccountNo)),
+                    cursor.getString(cursor.getColumnIndex(DataBaseConnect.bankName)),
+                    cursor.getString(cursor.getColumnIndex(DataBaseConnect.accountHolder)),
+                    cursor.getFloat(cursor.getColumnIndex(DataBaseConnect.balance)));
+            db.delete(DataBaseConnect.accountTableName, DataBaseConnect.bankAccountNo + " = ?", new String[]{accountNo});
             cursor.close();
 
         } else {
@@ -144,7 +144,7 @@ public class PersistanceAccountDAO implements AccountDAO {
                 new_amount = account.getBalance() + amount;
             }
 
-            String strSQL = "UPDATE " + manager.accountTableName + " SET " + manager.balance + " = " + new_amount + " WHERE " + manager.bankAccountNo + " = '" + accountNo + "'";
+            String strSQL = "UPDATE " + DataBaseConnect.accountTableName + " SET " + DataBaseConnect.balance + " = " + new_amount + " WHERE " + DataBaseConnect.bankAccountNo + " = '" + accountNo + "'";
 
             db.execSQL(strSQL);
 

@@ -45,11 +45,11 @@ public class PersistanceTransactionDAO implements TransactionDAO {
         SQLiteDatabase db = manager.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(manager.accountNo, accountNo);
-        values.put(manager.date, dateFormatString(date));
-        values.put(manager.amount, amount);
-        values.put(manager.expenceType, expenseType.toString());
-        db.insert(manager.transactionTableName, null, values);
+        values.put(DataBaseConnect.accountNo, accountNo);
+        values.put(DataBaseConnect.date, dateFormatString(date));
+        values.put(DataBaseConnect.amount, amount);
+        values.put(DataBaseConnect.expenceType, expenseType.toString());
+        db.insert(DataBaseConnect.transactionTableName, null, values);
     }
 
     @Override
@@ -60,22 +60,22 @@ public class PersistanceTransactionDAO implements TransactionDAO {
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) {
         SQLiteDatabase db = manager.getReadableDatabase();
-        String querySize = String.format("SELECT count(accountNo) FROM %s ", manager.transactionTableName);
+        String querySize = String.format("SELECT count(accountNo) FROM %s ", DataBaseConnect.transactionTableName);
         Cursor cursorsize = db.rawQuery(querySize, null);
         int size = cursorsize.getCount();
         String query;
         if (size <= limit) {
-            query = "SELECT " + manager.accountNo + ", " +
-                    manager.date + ", " +
-                    manager.expenceType + ", " +
-                    manager.amount +
-                    " FROM " + manager.transactionTableName + " ORDER BY " + manager.transactionId + " DESC";
+            query = "SELECT " + DataBaseConnect.accountNo + ", " +
+                    DataBaseConnect.date + ", " +
+                    DataBaseConnect.expenceType + ", " +
+                    DataBaseConnect.amount +
+                    " FROM " + DataBaseConnect.transactionTableName + " ORDER BY " + DataBaseConnect.transactionId + " DESC";
         } else {
-            query = "SELECT " + manager.accountNo + ", " +
-                    manager.date + ", " +
-                    manager.expenceType + ", " +
-                    manager.amount +
-                    " FROM " + manager.transactionTableName + " ORDER BY " + manager.transactionId + " DESC LIMIT" + limit;
+            query = "SELECT " + DataBaseConnect.accountNo + ", " +
+                    DataBaseConnect.date + ", " +
+                    DataBaseConnect.expenceType + ", " +
+                    DataBaseConnect.amount +
+                    " FROM " + DataBaseConnect.transactionTableName + " ORDER BY " + DataBaseConnect.transactionId + " DESC LIMIT" + limit;
         }
 
         Cursor cursor = db.rawQuery(query, null);
@@ -85,17 +85,17 @@ public class PersistanceTransactionDAO implements TransactionDAO {
         while (cursor.moveToNext()) {
             try {
                 ExpenseType expenseType = null;
-                if (cursor.getString(cursor.getColumnIndex(manager.expenceType)).equals(ExpenseType.INCOME.toString())) {
+                if (cursor.getString(cursor.getColumnIndex(DataBaseConnect.expenceType)).equals(ExpenseType.INCOME.toString())) {
                     expenseType = ExpenseType.INCOME;
                 } else {
                     expenseType = ExpenseType.EXPENSE;
                 }
 
-                String dateString = cursor.getString(cursor.getColumnIndex(manager.date));
+                String dateString = cursor.getString(cursor.getColumnIndex(DataBaseConnect.date));
                 Date date = dateFormatDate(dateString);
-                Transaction transaction = new Transaction(date, cursor.getString(cursor.getColumnIndex(manager.accountNo)),
+                Transaction transaction = new Transaction(date, cursor.getString(cursor.getColumnIndex(DataBaseConnect.accountNo)),
                         expenseType,
-                        cursor.getDouble(cursor.getColumnIndex(manager.amount))
+                        cursor.getDouble(cursor.getColumnIndex(DataBaseConnect.amount))
                 );
                 transactionLogData.add(transaction);
             } catch (ParseException e) {
